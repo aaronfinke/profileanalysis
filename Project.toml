@@ -1,0 +1,7 @@
+name = "ProfileAnalysis"
+uuid = "d7a72d12-d00d-4fde-9cfa-699cc5a26853"
+authors = ["Thomas White <taw@physics.org>"]
+version = "0.1.0"
+
+[deps]
+ParserCombinator = "fae87a5f-d1ad-5cf0-8f61-c941e1580b46"
