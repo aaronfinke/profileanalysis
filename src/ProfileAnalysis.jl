@@ -2,9 +2,13 @@
 
 module ProfileAnalysis
 
-export TimeTree, parsetimetree, loadprofiles, flattentimetree
-export averagetimes
 using ParserCombinator
+using DataStructures
+using Plots
+
+export loadprofiles, procprofiles, plotprofiles
+export TimeTree, flattentimetree
+export averagetimes, significanttimes
 
 
 struct TimeTree
@@ -62,7 +66,7 @@ function loadprofiles(filename::String)
 end
 
 
-function recursive_flatten(t::Dict, tree::TimeTree)
+function recursive_flatten(t::AbstractDict, tree::TimeTree)
     total = 0
     for subtree in tree.children
         total += subtree.time
@@ -72,21 +76,21 @@ function recursive_flatten(t::Dict, tree::TimeTree)
 end
 
 function flattentimetree(tree::TimeTree)
-    t = Dict{String,Float64}()
+    t = OrderedDict{String,Float64}()
     recursive_flatten(t, tree)
     t
 end
 
 
 function mapblocks(f, input::Vector{T}, blocksize::Integer) where T
-    output = Vector{T}(length(input))
+    output = Vector{T}()
     for blk in 1:blocksize:length(input)
         push!(output, f(view(input, blk:blk+blocksize-1)))
     end
     output
 end
 
-function meanblock(blk::Vector{T}) where T
+function meanofblock(blk::AbstractVector{T}) where T
     totals = T()
     n = 0
     for timedict in blk
@@ -102,14 +106,40 @@ function meanblock(blk::Vector{T}) where T
     averages
 end
 
-function averagetimes(r::Vector{Dict{String,Float64}}, blocksize::Int64)
-    mapblocks(meanblock, r, blocksize)
+function averagetimes(flattenedtimes, blocksize)
+    mapblocks(meanofblock, flattenedtimes, blocksize)
 end
 
 
-function significanttimes(r::Vector{Dict{String,Float64}})
-    fd
+function significanttimes(times, nsig=10)
+    sorted = sort(times, byvalue=true, rev=true, alg=PartialQuickSort(nsig))
+    rval = Dict{String,Float64}()
+    n = 1
+    other = 0
+    for w in sorted
+        if n <= nsig
+            push!(rval, w)
+        else
+            other += w.second
+        end
+        n += 1
+    end
+    push!(rval, "other" => other)
 end
 
+
+function procprofiles(t)
+    map(significanttimes,
+        averagetimes(map(flattentimetree, t), 100))
+end
+
+
+function plotprofiles(times)
+end
+
+
+# t = loadprofiles("profile-85.log")
+# r = procprofiles(t)
+# plotprofiles(r)
 
 end  # of module
