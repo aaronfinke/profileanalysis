@@ -81,7 +81,8 @@ function allkeys(vec::Vector{V}) where V <: AbstractDict{T, U} where {T, U}
 end
 
 
-function plottimes(times::AbstractVector{ProfileTimes})
+function plottimes(t::AbstractVector{ProfileTimes}, blocksize=133)
+    times = map(significanttimes, averagetimes(t, blocksize))
     keys = allkeys(times)
     data = Matrix{Float64}(undef, length(times), length(keys))
     for (j, key) in enumerate(keys)
@@ -93,7 +94,8 @@ function plottimes(times::AbstractVector{ProfileTimes})
              labels=reshape([k for k in keys], (1,:)),
              legend=:outerright,
              ylabel="Time / s",
-             xlabel="Frame number")
+             xlabel="Frame number",
+             linewidth=0)
 end
 
 
