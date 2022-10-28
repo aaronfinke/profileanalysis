@@ -45,6 +45,22 @@ function flatten(tree::TimeTree)
 end
 
 
+function readprofiles(filename)
+    Channel() do ch
+        open(filename, "r") do fh
+            for line in eachline(fh)
+
+                sp = findfirst(' ', line)
+                worker = parse(Int, SubString(line, 1, sp))
+                lp = parse_time_tree(SubString(line, 1+sp))
+                put!(ch, flatten(lp))
+
+            end
+        end
+    end
+end
+
+
 """
     loadprofiles(filename[, nmax])
 
@@ -52,17 +68,15 @@ Load profiling information in indexamajig S-expression time tree format.
 
 If `nmax` is unspecified, load the entire file.  Otherwise, load the first `nmax`
 profiles.
+
+The profiles will be returned in the order they are found in the file.  Worker
+numbers will be ignored.
 """
 function loadprofiles(filename::String, nmax=0)
     timetrees = ProfileTimes[]
-    open(filename, "r") do fh
-        for line in eachline(fh)
-
-            sp = findfirst(' ', line)
-            worker = SubString(line, 1, sp)
-            lp = parse_time_tree(SubString(line, 1+sp))
-            push!(timetrees, flatten(lp))
-
+    readprofiles(filename) do ch
+        for profile in ch
+            push!(timetrees, profile)
             let n = length(timetrees)
                 if n % 1000 == 0
                     println(n, " profiles loaded")
@@ -71,9 +85,10 @@ function loadprofiles(filename::String, nmax=0)
                     return timetrees
                 end
             end
-
         end
     end
+    return timetrees
+end
 
     timetrees
 end
