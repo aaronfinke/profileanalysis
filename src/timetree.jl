@@ -49,12 +49,10 @@ function readprofiles(filename)
     Channel() do ch
         open(filename, "r") do fh
             for line in eachline(fh)
-
                 sp = findfirst(' ', line)
                 worker = parse(Int, SubString(line, 1, sp))
                 lp = parse_time_tree(SubString(line, 1+sp))
-                put!(ch, flatten(lp))
-
+                put!(ch, (worker,flatten(lp)))
             end
         end
     end
@@ -62,32 +60,33 @@ end
 
 
 """
-    loadprofiles(filename[, nmax])
+    loadprofiles(filename[, nmax][, worker=n])
 
 Load profiling information in indexamajig S-expression time tree format.
 
-If `nmax` is unspecified, load the entire file.  Otherwise, load the first `nmax`
+If `nmax` is unspecified, load the entire file.  Otherwise, return up to `nmax`
 profiles.
 
-The profiles will be returned in the order they are found in the file.  Worker
-numbers will be ignored.
+If `worker` is specified, returns information only for the given worker process.
+Otherwise, returns everything, in the order it appears in the file.
 """
-function loadprofiles(filename::String, nmax=0)
-    timetrees = ProfileTimes[]
-    readprofiles(filename) do ch
-        for profile in ch
-            push!(timetrees, profile)
-            let n = length(timetrees)
-                if n % 1000 == 0
-                    println(n, " profiles loaded")
-                end
-                if (nmax > 0) && (n == nmax)
-                    return timetrees
-                end
+function loadprofiles(filename, nmax=nothing; worker=nothing)
+    profiles = ProfileTimes[]
+    ch = readprofiles(filename)
+    nloaded = 0
+    for (nw,profile) in ch
+        if isnothing(worker) || (nw == worker)
+            push!(profiles, profile)
+            nloaded += 1
+            if nloaded % 1000 == 0
+                println(nloaded, " profiles loaded")
+            end
+            if nloaded == nmax
+                return profiles
             end
         end
     end
-    return timetrees
+    return profiles
 end
 
     timetrees

@@ -91,7 +91,7 @@ function plottimes(t::AbstractVector{ProfileTimes}, blocksize=133)
         end
     end
     areaplot(data,
-             labels=reshape([k for k in keys], (1,:)),
+             labels=reshape(collect(keys), (1,:)),
              legend=:outerright,
              ylabel="Time / s",
              xlabel="Frame number",
