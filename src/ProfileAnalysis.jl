@@ -5,7 +5,7 @@ using DataStructures
 using Plots
 using RecipesBase
 
-export loadprofiles, ProfileTimes, plottimes
+export loadprofiles, loadworkerprofiles, ProfileTimes, plottimes
 export averagetimes, significanttimes, allkeys
 
 

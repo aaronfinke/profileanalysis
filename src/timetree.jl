@@ -89,5 +89,35 @@ function loadprofiles(filename, nmax=nothing; worker=nothing)
     return profiles
 end
 
-    timetrees
+
+"""
+    loadworkerprofiles(filename[, nmax])
+
+Load profiling information in indexamajig S-expression time tree format, keeping
+workers separate.
+
+If `nmax` is unspecified, load the entire file.  Otherwise, load the first `nmax`
+profiles.
+
+Returns a vector of vectors of profiles.
+"""
+function loadworkerprofiles(filename, nmax=0)
+    wprofiles = Dict{Int, Vector{ProfileTimes}}()
+    ch = readprofiles(filename)
+    nloaded = 0
+    for (nw,profile) in ch
+        if nw in keys(wprofiles)
+            push!(wprofiles[nw], profile)
+        else
+            wprofiles[nw] = vec(profile)
+        end
+        nloaded += 1
+        if nloaded % 1000 == 0
+            println(nloaded, " profiles loaded")
+        end
+        if nloaded == nmax
+            return wprofiles
+        end
+    end
+    return wprofiles
 end
