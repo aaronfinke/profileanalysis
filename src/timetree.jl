@@ -109,7 +109,7 @@ function loadworkerprofiles(filename, nmax=0)
         if nw in keys(wprofiles)
             push!(wprofiles[nw], profile)
         else
-            wprofiles[nw] = vec(profile)
+            wprofiles[nw] = ProfileTimes[profile]
         end
         nloaded += 1
         if nloaded % 1000 == 0
