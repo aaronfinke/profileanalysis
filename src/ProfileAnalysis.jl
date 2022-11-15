@@ -3,7 +3,6 @@ module ProfileAnalysis
 
 using DataStructures
 using Plots
-using RecipesBase
 
 export loadprofiles, loadworkerprofiles, ProfileTimes, plottimes
 export averagetimes, significanttimes, allkeys
