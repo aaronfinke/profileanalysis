@@ -92,18 +92,55 @@ function allkeys(vec::Vector{V}) where V <: AbstractDict{T, U} where {T, U}
 end
 
 
+pinned_keys = ["other",
+
+               "asapo-get-next",
+               "asapo-fetch",
+               "read-asapo-data",
+               "zmq-fetch",
+               "read-zmq-data",
+               "seedee-deserialize",
+               "seedee-panel",
+
+               "malloc-copy",
+               "H5Dread",
+               "load-image-data",
+               "load-masks",
+               "flag-values",
+
+               "peak-search",
+               "pf8-mask",
+               "pf8-rstats",
+               "pf8-search",
+
+               "process-image",
+               "asdf-search",
+               "asdf-findcell",
+               "prerefine-cell-check"]
+
+pinned_colours = distinguishable_colors(30)[1:length(pinned_keys)]
+colourkey = Dict(pinned_keys .=> pinned_colours)
+
 function plottimes(t::AbstractVector{ProfileTimes}, blocksize=133)
     times = map(significanttimes, averagetimes(t, blocksize))
     keys = allkeys(times)
     data = Matrix{Float64}(undef, length(times), length(keys))
+    colours = Matrix{Colors.Colorant}(undef, 1, length(keys))
+    labels = Matrix{String}(undef, 1, length(keys))
     for (j, key) in enumerate(keys)
         for (i, profile) in enumerate(times)
             data[i,j] = get(profile, key, 0.0)
         end
+        labels[j] = key
+        colours[j] = get(colourkey, key, RGB(0,0,0))
+        if key != "other" && colours[j] == RGB(0,0,0)
+            println("WARNING: No colour for ", key)
+        end
     end
     areaplot(blocksize:blocksize:(1+length(times))*blocksize-1,
              data,
-             labels=reshape(collect(keys), (1,:)),
+             labels=labels,
+             seriescolor=colours,
              legend=:outerright,
              ylabel="Time / s",
              xlabel="Frame number",
