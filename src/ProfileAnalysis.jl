@@ -121,7 +121,7 @@ pinned_keys = ["other",
 pinned_colours = distinguishable_colors(30)[1:length(pinned_keys)]
 colourkey = Dict(pinned_keys .=> pinned_colours)
 
-function plottimes(t::AbstractVector{ProfileTimes}, blocksize=133)
+function plottimes(t::AbstractVector{ProfileTimes}, blocksize=100)
     times = map(significanttimes, averagetimes(t, blocksize))
     keys = allkeys(times)
     data = Matrix{Float64}(undef, length(times), length(keys))
