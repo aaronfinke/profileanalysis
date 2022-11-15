@@ -121,13 +121,28 @@ pinned_keys = ["other",
 pinned_colours = distinguishable_colors(30)[1:length(pinned_keys)]
 colourkey = Dict(pinned_keys .=> pinned_colours)
 
+
+function match_order(inp, reference)
+    out = []
+    for i in reference
+        if i in inp
+            push!(out, i)
+        end
+    end
+    for i in setdiff(inp, reference)
+        push!(out, i)
+    end
+    out
+end
+
+
 function plottimes(t::AbstractVector{ProfileTimes}, blocksize=100)
     times = map(significanttimes, averagetimes(t, blocksize))
     keys = allkeys(times)
     data = Matrix{Float64}(undef, length(times), length(keys))
     colours = Matrix{Colors.Colorant}(undef, 1, length(keys))
     labels = Matrix{String}(undef, 1, length(keys))
-    for (j, key) in enumerate(keys)
+    for (j, key) in enumerate(match_order(keys, pinned_keys))
         for (i, profile) in enumerate(times)
             data[i,j] = get(profile, key, 0.0)
         end
