@@ -9,7 +9,19 @@ export loadprofiles, loadworkerprofiles, ProfileTimes, plottimes
 export averagetimes, significanttimes, allkeys
 
 
-ProfileTimes = OrderedDict{String,Float64}
+struct ProfileTimes <: AbstractDict{String,Float64}
+   times::OrderedDict{String,Float64}
+end
+ProfileTimes() = ProfileTimes(OrderedDict{String,Float64}())
+Base.getindex(a::ProfileTimes, b) = Base.getindex(a.times, b)
+Base.get(a::ProfileTimes, b, c) = Base.get(a.times, b, c)
+Base.sort(a::ProfileTimes; args...) = ProfileTimes(Base.sort(a.times; args...))
+Base.setindex!(a::ProfileTimes, b, c) = ProfileTimes(Base.setindex!(a.times, b, c))
+Base.keys(a::ProfileTimes) = Base.keys(a.times)
+Base.iterate(a::ProfileTimes) = Base.iterate(a.times)
+Base.iterate(a::ProfileTimes, b) = Base.iterate(a.times, b)
+Base.length(a::ProfileTimes) = Base.length(a.times)
+
 
 include("timetree.jl")
 
