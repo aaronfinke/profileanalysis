@@ -101,7 +101,8 @@ function plottimes(t::AbstractVector{ProfileTimes}, blocksize=133)
             data[i,j] = get(profile, key, 0.0)
         end
     end
-    areaplot(data,
+    areaplot(blocksize:blocksize:(1+length(times))*blocksize-1,
+             data,
              labels=reshape(collect(keys), (1,:)),
              legend=:outerright,
              ylabel="Time / s",
