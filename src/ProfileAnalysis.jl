@@ -93,6 +93,10 @@ end
 
 
 pinned_keys = ["other",
+               "integration",
+               "image-read",
+               "root",
+               "ffbidx",
 
                "asapo-get-next",
                "asapo-fetch",
